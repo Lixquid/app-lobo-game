@@ -1,0 +1,38 @@
+{
+	"name": "lobo-game",
+	"description": "An online implementation of the solitaire game Lobo, designed by James Ernest.",
+	"version": "0.1.0",
+	"author": {
+		"name": "Lixquid",
+		"url": "https://lixquid.com"
+	},
+	"license": "MIT",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"start": "vite --port 8080",
+		"build": "vite build",
+		"lint": "tsc --noEmit --pretty && biome check index.html src && prettier --check .",
+		"lint:fix": "biome check --write index.html src && prettier --write . \"!README.md\" \"!package.json\" \"!package-lock.json\"",
+		"test": "globstar -- node --loader tsx --no-warnings --test \"src/**/*.test.ts\""
+	},
+	"prettier": {
+		"printWidth": 80,
+		"tabWidth": 4,
+		"useTabs": true
+	},
+	"dependencies": {
+		"bootstrap": "^5.3.6",
+		"bootstrap-icons": "^1.13.1",
+		"preact": "^10.26.8",
+		"typescript": "^5.8.3",
+		"vite": "^6.3.5"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/node": "^22.15.29",
+		"globstar": "^1.0.0",
+		"prettier": "^3.5.3",
+		"tsx": "^4.19.4"
+	}
+}
