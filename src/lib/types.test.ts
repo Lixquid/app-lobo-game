@@ -1,5 +1,5 @@
 import { equal } from "node:assert/strict";
-import test from "node:test";
+import { test } from "node:test";
 import { card, Card, getActionType } from "./types.js";
 
 test("getActionType", async (t) => {
@@ -10,7 +10,10 @@ test("getActionType", async (t) => {
 		() => {
 			const humanHand = hand([3, 5, 7]);
 			const wolfHand = hand([2, 5, 8]);
-			equal(getActionType(humanHand, wolfHand, [1], [1]), "perfect");
+			equal(
+				getActionType(humanHand, wolfHand, new Set([1]), new Set([1])),
+				"perfect",
+			);
 		},
 	);
 
@@ -19,7 +22,10 @@ test("getActionType", async (t) => {
 		() => {
 			const humanHand = hand([6, 4]);
 			const wolfHand = hand([2, 3]);
-			equal(getActionType(humanHand, wolfHand, [0], [1]), "over");
+			equal(
+				getActionType(humanHand, wolfHand, new Set([0]), new Set([1])),
+				"over",
+			);
 		},
 	);
 
@@ -28,7 +34,15 @@ test("getActionType", async (t) => {
 		() => {
 			const humanHand = hand([2, 3, 4]);
 			const wolfHand = hand([5, 7]);
-			equal(getActionType(humanHand, wolfHand, [0, 1], [0]), "sum"); // 2+3=5
+			equal(
+				getActionType(
+					humanHand,
+					wolfHand,
+					new Set([0, 1]),
+					new Set([0]),
+				),
+				"sum",
+			); // 2+3=5
 		},
 	);
 
@@ -37,15 +51,29 @@ test("getActionType", async (t) => {
 		() => {
 			const humanHand = hand([7, 4]);
 			const wolfHand = hand([3, 4, 2]);
-			equal(getActionType(humanHand, wolfHand, [0], [0, 1]), "split"); // 3+4=7
+			equal(
+				getActionType(
+					humanHand,
+					wolfHand,
+					new Set([0]),
+					new Set([0, 1]),
+				),
+				"split",
+			); // 3+4=7
 		},
 	);
 
 	await t.test("returns undefined if no cards are selected", () => {
 		const humanHand = hand([1, 2]);
 		const wolfHand = hand([3, 4]);
-		equal(getActionType(humanHand, wolfHand, [], [0]), undefined);
-		equal(getActionType(humanHand, wolfHand, [0], []), undefined);
+		equal(
+			getActionType(humanHand, wolfHand, new Set(), new Set([0])),
+			undefined,
+		);
+		equal(
+			getActionType(humanHand, wolfHand, new Set([0]), new Set()),
+			undefined,
+		);
 	});
 
 	await t.test(
@@ -53,8 +81,24 @@ test("getActionType", async (t) => {
 		() => {
 			const humanHand = hand([1]);
 			const wolfHand = hand([2]);
-			equal(getActionType(humanHand, wolfHand, [0, 1], [0]), undefined);
-			equal(getActionType(humanHand, wolfHand, [0], [0, 1]), undefined);
+			equal(
+				getActionType(
+					humanHand,
+					wolfHand,
+					new Set([0, 1]),
+					new Set([0]),
+				),
+				undefined,
+			);
+			equal(
+				getActionType(
+					humanHand,
+					wolfHand,
+					new Set([0]),
+					new Set([0, 1]),
+				),
+				undefined,
+			);
 		},
 	);
 
@@ -62,12 +106,32 @@ test("getActionType", async (t) => {
 		const humanHand = hand([2, 3]);
 		const wolfHand = hand([4, 5]);
 		// Multiple human and wolf cards
-		equal(getActionType(humanHand, wolfHand, [0, 1], [0, 1]), undefined);
+		equal(
+			getActionType(
+				humanHand,
+				wolfHand,
+				new Set([0, 1]),
+				new Set([0, 1]),
+			),
+			undefined,
+		);
+
 		// One human, one wolf, but not equal or over
-		equal(getActionType(humanHand, wolfHand, [0], [1]), undefined); // 2 < 5
+		equal(
+			getActionType(humanHand, wolfHand, new Set([0]), new Set([1])),
+			undefined,
+		); // 2 < 5
+
 		// Multiple human, one wolf, but sum does not match
-		equal(getActionType(humanHand, wolfHand, [0, 1], [0]), undefined); // 2+3 != 4
+		equal(
+			getActionType(humanHand, wolfHand, new Set([0, 1]), new Set([0])),
+			undefined,
+		); // 2+3 != 4
+
 		// One human, multiple wolf, but sum does not match
-		equal(getActionType(humanHand, wolfHand, [0], [0, 1]), undefined); // 2 != 4+5
+		equal(
+			getActionType(humanHand, wolfHand, new Set([0]), new Set([0, 1])),
+			undefined,
+		); // 2 != 4+5
 	});
 });

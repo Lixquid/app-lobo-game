@@ -20,21 +20,25 @@ export function card(value: number): Card {
 export function getActionType(
 	humanHand: ReadonlyArray<Card>,
 	wolfHand: ReadonlyArray<Card>,
-	selectedHumanCards: ReadonlyArray<number>,
-	selectedWolfCards: ReadonlyArray<number>,
+	selectedHumanCards: ReadonlySet<number>,
+	selectedWolfCards: ReadonlySet<number>,
 ): "perfect" | "sum" | "split" | "over" | undefined {
 	if (
-		selectedHumanCards.length === 0 ||
-		selectedWolfCards.length === 0 ||
-		selectedHumanCards.length > humanHand.length ||
-		selectedWolfCards.length > wolfHand.length
+		selectedHumanCards.size === 0 ||
+		selectedWolfCards.size === 0 ||
+		selectedHumanCards.size > humanHand.length ||
+		selectedWolfCards.size > wolfHand.length
 	) {
 		return undefined;
 	}
 
 	// Get selected card values
-	const humanCards = selectedHumanCards.map((i) => humanHand[i] as Card);
-	const wolfCards = selectedWolfCards.map((i) => wolfHand[i] as Card);
+	const humanCards = Array.from(selectedHumanCards).map(
+		(i) => humanHand[i] as Card,
+	);
+	const wolfCards = Array.from(selectedWolfCards).map(
+		(i) => wolfHand[i] as Card,
+	);
 
 	if (humanCards.length === 1 && wolfCards.length === 1) {
 		const human = humanCards[0]!;

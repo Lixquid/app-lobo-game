@@ -56,6 +56,31 @@ export interface GameState {
 }
 
 /**
+ * Creates and initializes a new game state based on the provided game settings.
+ *
+ * This function generates a deck using the specified ranks and cards per rank,
+ * deals hands to both the human and wolf players, and sets up the initial
+ * scores and round number.
+ *
+ * @param settings - The configuration object specifying game parameters such as
+ * ranks, cards per rank, and hand size.
+ */
+export function createGameState(settings: GameSettings): GameState {
+	const deck = createDeck(settings.ranks, settings.cardsPerRank);
+	const humanHand = deck.splice(0, settings.handSize);
+	const wolfHand = deck.splice(0, settings.handSize);
+	return {
+		settings,
+		deck,
+		roundNumber: 1,
+		humanHand,
+		wolfHand,
+		humanScore: 0,
+		wolfScore: 0,
+	};
+}
+
+/**
  * Applies the selected action to the game state, returning a new state.
  *
  * Removes the selected cards from the human and wolf's hands, then:
@@ -70,8 +95,8 @@ export interface GameState {
  */
 export function performAction(
 	state: GameState,
-	selectedHumanCards: ReadonlyArray<number>,
-	selectedWolfCards: ReadonlyArray<number>,
+	selectedHumanCards: ReadonlySet<number>,
+	selectedWolfCards: ReadonlySet<number>,
 ): GameState {
 	const action = getActionType(
 		state.humanHand,
@@ -114,8 +139,10 @@ export function performAction(
 			break;
 		}
 		case "over": {
-			const humanCard = state.humanHand[selectedHumanCards[0]!];
-			const wolfCard = state.wolfHand[selectedWolfCards[0]!];
+			const [selectedHumanCard] = selectedHumanCards;
+			const humanCard = state.humanHand[selectedHumanCard!];
+			const [selectedWolfCard] = selectedWolfCards;
+			const wolfCard = state.wolfHand[selectedWolfCard!];
 			if (humanCard !== undefined && wolfCard !== undefined) {
 				const diff = (humanCard as number) - (wolfCard as number);
 				for (let i = 0; i < diff; ++i) {
@@ -144,12 +171,15 @@ export function endRound(state: GameState): GameState {
 	} else {
 		humanScore += state.humanHand.reduce((a, b) => a + b, 0);
 	}
+	const deck = createDeck(state.settings.ranks, state.settings.cardsPerRank);
+	const humanHand = deck.splice(0, state.settings.handSize);
+	const wolfHand = deck.splice(0, state.settings.handSize);
 	return {
 		settings: state.settings,
-		deck: createDeck(state.settings.ranks, state.settings.cardsPerRank),
+		deck,
 		roundNumber: state.roundNumber + 1,
-		humanHand: [],
-		wolfHand: [],
+		humanHand,
+		wolfHand,
 		humanScore,
 		wolfScore,
 	};

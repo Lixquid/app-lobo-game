@@ -1,6 +1,7 @@
 import { equal } from "node:assert/strict";
 import { test } from "node:test";
 import {
+	createGameState,
 	endRound,
 	GameState,
 	performAction,
@@ -35,8 +36,8 @@ test("endRound", async (t) => {
 		equal(newState.humanScore, 0);
 		equal(newState.wolfScore, 3);
 		equal(newState.roundNumber, 2);
-		equal(newState.humanHand.length, 0);
-		equal(newState.wolfHand.length, 0);
+		equal(newState.humanHand.length, newState.settings.handSize);
+		equal(newState.wolfHand.length, newState.settings.handSize);
 		assertDeckIsReset(newState);
 	});
 
@@ -49,8 +50,8 @@ test("endRound", async (t) => {
 		equal(newState.humanScore, 11);
 		equal(newState.wolfScore, 0);
 		equal(newState.roundNumber, 2);
-		equal(newState.humanHand.length, 0);
-		equal(newState.wolfHand.length, 0);
+		equal(newState.humanHand.length, newState.settings.handSize);
+		equal(newState.wolfHand.length, newState.settings.handSize);
 		assertDeckIsReset(newState);
 	});
 });
@@ -73,8 +74,8 @@ test("performAction", async (t) => {
 				humanHand: [card(5), card(2)],
 				wolfHand: [card(4), card(5)],
 			},
-			[0],
-			[1],
+			new Set([0]),
+			new Set([1]),
 		);
 		equal(newState.humanHand.length, 2); // drew a card
 		equal(newState.wolfHand.length, 1);
@@ -87,8 +88,8 @@ test("performAction", async (t) => {
 				humanHand: [card(1), card(2), card(3)],
 				wolfHand: [card(6)],
 			},
-			[0, 1, 2],
-			[0],
+			new Set([0, 1, 2]),
+			new Set([0]),
 		);
 		equal(newState.humanHand.length, 1); // drew a card
 		equal(newState.wolfHand.length, 0);
@@ -101,8 +102,8 @@ test("performAction", async (t) => {
 				humanHand: [card(6)],
 				wolfHand: [card(1), card(2), card(3)],
 			},
-			[0],
-			[0, 1, 2],
+			new Set([0]),
+			new Set([0, 1, 2]),
 		);
 		equal(newState.humanHand.length, 0);
 		equal(newState.wolfHand.length, 1); // drew a card
@@ -115,10 +116,44 @@ test("performAction", async (t) => {
 				humanHand: [card(7)],
 				wolfHand: [card(5)],
 			},
-			[0],
-			[0],
+			new Set([0]),
+			new Set([0]),
 		);
 		equal(newState.humanHand.length, 0);
 		equal(newState.wolfHand.length, 2); // drew 2 cards
+	});
+});
+
+test("createGameState", async (t) => {
+	const settings = {
+		ranks: 8,
+		cardsPerRank: 5,
+		handSize: 4,
+		pointGoal: 100,
+	};
+	const state = createGameState(settings);
+
+	await t.test("initializes with correct settings", () => {
+		equal(state.settings, settings);
+	});
+
+	await t.test("initializes roundNumber to 1", () => {
+		equal(state.roundNumber, 1);
+	});
+
+	await t.test("deals correct hand sizes", () => {
+		equal(state.humanHand.length, settings.handSize);
+		equal(state.wolfHand.length, settings.handSize);
+	});
+
+	await t.test("removes dealt cards from deck", () => {
+		const expectedDeckLength =
+			settings.ranks * settings.cardsPerRank - settings.handSize * 2;
+		equal(state.deck.length, expectedDeckLength);
+	});
+
+	await t.test("initializes scores to zero", () => {
+		equal(state.humanScore, 0);
+		equal(state.wolfScore, 0);
 	});
 });
