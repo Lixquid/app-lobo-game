@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
 import { ActiveGame } from "./components/ActiveGame.js";
+import { HelpDialog } from "./components/HelpDialog.js";
 import { SetupPanel } from "./components/SetupPanel.js";
 import { createGameState, GameState } from "./lib/state.js";
 
@@ -14,6 +15,7 @@ function toggleDarkMode() {
 
 export function App() {
 	const [gameState, setGameState] = useState<GameState | null>(null);
+	const [showHelp, setShowHelp] = useState(false);
 
 	return (
 		<div class="container mx-auto py-5">
@@ -27,6 +29,14 @@ export function App() {
 						title="Toggle dark mode"
 					>
 						<i class="bi bi-moon-fill" />
+					</button>
+					<button
+						type="button"
+						class="btn btn-info me-2"
+						onClick={() => setShowHelp(true)}
+					>
+						<i class="bi bi-question-circle me-2" />
+						Help
 					</button>
 					<a
 						href="https://lixquid.com"
@@ -58,6 +68,8 @@ export function App() {
 					Crab Fragment Labs
 				</a>
 			</div>
+
+			{showHelp && <HelpDialog close={() => setShowHelp(false)} />}
 		</div>
 	);
 }
