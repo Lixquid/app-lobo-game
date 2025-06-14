@@ -57,7 +57,7 @@ export function App() {
 				/>
 			)}
 			<div class="mt-5 text-end">
-				<a href="https://github.com/lixquid/app-app-lobo-game">
+				<a href="https://github.com/lixquid/app-lobo-game">
 					<i class="bi bi-box-arrow-up-right me-2" />
 					Source code
 				</a>
